@@ -24,7 +24,7 @@ function el<K extends keyof HTMLElementTagNameMap>(
 }
 
 function render() {
-  appEl.replaceChildren(buildHeader(), buildBoard(), buildCenter(), buildLog());
+  appEl.replaceChildren(buildHeader(), buildBoard(), buildLog());
   scheduleAiIfNeeded();
 }
 
@@ -56,14 +56,38 @@ function buildHeader(): HTMLElement {
 
 function buildBoard(): HTMLElement {
   const board = el("div", "board");
-  board.appendChild(buildTeamPanel("ai"));
-  board.appendChild(buildTeamPanel("human"));
+  board.appendChild(buildTeamPanel("ai", "panel--top"));
+  board.appendChild(buildCourt());
+  board.appendChild(buildTeamPanel("human", "panel--bottom"));
   return board;
 }
 
-function buildTeamPanel(owner: PlayerId): HTMLElement {
+function buildCourt(): HTMLElement {
+  const court = el("div", "court");
+  court.appendChild(courtMarkings());
+  court.appendChild(buildCenter());
+  return court;
+}
+
+/** A simplified basketball-court backdrop, echoing the postcard's shared court illustration. */
+function courtMarkings(): SVGSVGElement {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "court-lines");
+  svg.setAttribute("viewBox", "0 0 200 100");
+  svg.setAttribute("preserveAspectRatio", "none");
+  svg.innerHTML = `
+    <rect x="2" y="2" width="196" height="96" fill="none" stroke="currentColor" stroke-width="1.5" />
+    <line x1="2" y1="50" x2="198" y2="50" stroke="currentColor" stroke-width="1.5" />
+    <circle cx="100" cy="50" r="14" fill="none" stroke="currentColor" stroke-width="1.5" />
+    <path d="M 70 2 L 70 22 A 30 30 0 0 0 130 22 L 130 2" fill="none" stroke="currentColor" stroke-width="1.5" />
+    <path d="M 70 98 L 70 78 A 30 30 0 0 1 130 78 L 130 98" fill="none" stroke="currentColor" stroke-width="1.5" />
+  `;
+  return svg;
+}
+
+function buildTeamPanel(owner: PlayerId, positionClass: string): HTMLElement {
   const s = engine.state;
-  const panel = el("section", "panel");
+  const panel = el("section", `panel ${positionClass}`);
   if (s.attacker === owner && s.phase !== "game-over") panel.classList.add("panel--attacking");
 
   const heading = el("h2", "panel-title", owner === "human" ? "Your Team" : "The Computer's Team");

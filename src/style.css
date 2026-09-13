@@ -57,19 +57,49 @@ body {
 .board {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  border: 3px solid var(--panel-border);
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 .panel {
   background: var(--panel-bg);
-  border: 3px solid var(--panel-border);
-  border-radius: 12px;
   padding: 0.75rem 1rem;
   transition: box-shadow 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.panel--top {
+  border-bottom: 3px solid var(--panel-border);
+}
+
+.panel--bottom {
+  border-top: 3px solid var(--panel-border);
 }
 
 .panel--attacking {
-  box-shadow: 0 0 0 3px var(--accent-2);
+  box-shadow: inset 0 0 0 3px var(--accent-2);
+}
+
+/* The shared basketball-court illustration the two team rows mirror around,
+   echoing the postcard's back-of-card board art. */
+.court {
+  position: relative;
+  min-height: 6.5rem;
+  background: linear-gradient(180deg, #a15a1c, #8a4c17);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.court-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: rgba(244, 227, 193, 0.5);
 }
 
 .panel-title {
@@ -145,12 +175,16 @@ body {
 }
 
 .center {
-  background: var(--panel-bg);
-  border: 3px dashed var(--panel-border);
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 248, 236, 0.95);
+  border: 3px solid var(--panel-border);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 0.85rem 1rem;
   text-align: center;
   min-height: 3.5rem;
+  width: 100%;
+  max-width: 30rem;
 }
 
 .prompt {

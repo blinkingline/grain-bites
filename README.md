@@ -4,7 +4,7 @@ A web implementation of *Grain Bites*, the 2-player postcard dice-dueling game
 by Ian Howard (art by Marty Cobb). Play against a computer opponent — no
 postcard, marker, or dice required.
 
-Play it live: https://blinkingline.github.io/grain-bites/
+Play it live: https://grainbites.geeb.us
 
 ## Rules summary
 
@@ -37,6 +37,6 @@ npm run build    # production build to dist/
 ```
 
 The game engine (`src/game/`) is framework-free and fully unit-tested,
-separate from the DOM rendering in `src/main.ts`. Pushes to `main` are built
-and deployed to GitHub Pages automatically via
-`.github/workflows/deploy.yml`.
+separate from the DOM rendering in `src/main.ts`. CI (`.github/workflows/ci.yml`)
+runs tests and a production build on every push. Deployment is to a
+self-hosted VPS via `./deploy.sh grain-bites` — see `CLAUDE.md` for details.
