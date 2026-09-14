@@ -67,16 +67,46 @@ describe("GameEngine", () => {
     expect(engine.state.attacker).toBe("ai");
   });
 
-  it("grants the defender a Bounce and passes the turn when no die can be assigned", () => {
+  it("lets the attacker try Bounces before giving up when no die can be assigned", () => {
     const engine = new GameEngine(createInitialState());
     engine.state.teams.ai.members.forEach((m) => {
       m.alive = m.range === "5-6";
     });
     mockDice([1, 2]); // neither matches the only surviving range, 5-6
     engine.chooseAttackType("fast");
+    expect(engine.state.phase).toBe("assign"); // not auto-finalized; attacker gets a shot with Bounces
+    expect(engine.state.teams.ai.bounces).toBe(0);
+  });
+
+  it("grants the defender a Bounce and passes the turn once the attacker gives up with no legal target", () => {
+    const engine = new GameEngine(createInitialState());
+    engine.state.teams.ai.members.forEach((m) => {
+      m.alive = m.range === "5-6";
+    });
+    mockDice([1, 2]); // neither matches the only surviving range, 5-6
+    engine.chooseAttackType("fast");
+    engine.passTurnNoTarget();
     expect(engine.state.teams.ai.bounces).toBe(1);
     expect(engine.state.attacker).toBe("ai");
     expect(engine.state.phase).toBe("choose-attack");
+  });
+
+  it("lets the attacker spend Bounces to rescue an attack that started with no legal target", () => {
+    mockDice([1, 2]); // neither matches the only surviving range, 5-6
+    const engine = new GameEngine(createInitialState());
+    engine.state.teams.human.bounces = 3; // max
+    engine.state.teams.ai.members.forEach((m) => {
+      m.alive = m.range === "5-6";
+    });
+    engine.chooseAttackType("fast");
+    engine.adjustAttackDie(1, 1); // 2 -> 3
+    engine.adjustAttackDie(1, 1); // 3 -> 4
+    engine.adjustAttackDie(1, 1); // 4 -> 5, now matches 5-6
+    expect(engine.state.current!.attackDice[1]).toBe(5);
+    expect(engine.state.teams.human.bounces).toBe(0);
+    expect(() => engine.passTurnNoTarget()).toThrow(); // a legal target exists now
+    engine.assignDie(1, "5-6");
+    expect(engine.state.phase).toBe("defend");
   });
 
   it("lets the attacker spend a Bounce to shift an attack die before assigning", () => {

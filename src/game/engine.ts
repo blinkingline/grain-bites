@@ -54,17 +54,8 @@ export class GameEngine {
   chooseAttackType(kind: AttackKind) {
     const s = this.state;
     if (s.phase !== "choose-attack") throw new Error("Not in choose-attack phase");
-    const defenderId = otherPlayer(s.attacker);
     const dice = rollDice(kind === "fast" ? 2 : 3);
     log(s, `${label(s.attacker)} ${verb(s.attacker, "launch")} a ${kind === "fast" ? "Fast (2d6)" : "Slow (3d6)"} attack: rolled ${dice.join(", ")}.`);
-
-    if (validAssignments(dice, s.teams[defenderId]).length === 0) {
-      const defenderTeam = s.teams[defenderId];
-      defenderTeam.bounces = Math.min(3, defenderTeam.bounces + 1);
-      log(s, `No die matches a surviving ${label(defenderId)} target. ${label(defenderId)} ${verb(defenderId, "gain")} a Bounce.`);
-      this.finalizeTurn();
-      return;
-    }
 
     s.current = { kind, attackDice: dice };
     s.phase = "assign";
@@ -81,6 +72,20 @@ export class GameEngine {
     dice[dieIndex] = clampDie(dice[dieIndex] + direction);
     s.current.attackDice = dice;
     log(s, `${label(s.attacker)} ${verb(s.attacker, "spend")} a Bounce, die ${dieIndex + 1} is now ${dice[dieIndex]}.`);
+  }
+
+  /** Attacker gives up on this attack after Bounces still leave no legal target; defender gains a Bounce. */
+  passTurnNoTarget() {
+    const s = this.state;
+    if (s.phase !== "assign" || !s.current) throw new Error("Not in assign phase");
+    const defenderId = otherPlayer(s.attacker);
+    if (validAssignments(s.current.attackDice, s.teams[defenderId]).length > 0) {
+      throw new Error("A legal target exists; assign a die instead");
+    }
+    const defenderTeam = s.teams[defenderId];
+    defenderTeam.bounces = Math.min(3, defenderTeam.bounces + 1);
+    log(s, `No die matches a surviving ${label(defenderId)} target. ${label(defenderId)} ${verb(defenderId, "gain")} a Bounce.`);
+    this.finalizeTurn();
   }
 
   assignDie(dieIndex: number, targetRange: RangeId) {

@@ -1,7 +1,7 @@
 import { stepAi } from "./game/aiDriver";
 import { actorForPhase, createInitialState, GameEngine } from "./game/engine";
-import { rangeWidth, validAssignments } from "./game/rules";
-import { RANGE_IDS, type PlayerId } from "./game/types";
+import { validAssignments } from "./game/rules";
+import { otherPlayer, RANGE_IDS, type PlayerId } from "./game/types";
 import "./style.css";
 
 const appEl = document.getElementById("app")!;
@@ -121,8 +121,7 @@ function buildTeamPanel(owner: PlayerId, positionClass: string, rowPattern: numb
       chip.disabled = !member.alive;
 
       const rangeLabel = el("span", "chip-range", range);
-      const widthLabel = el("span", "chip-width", `×${rangeWidth(range)}`);
-      chip.append(rangeLabel, widthLabel);
+      chip.append(rangeLabel);
 
       if (member.alive && canAssignHere && dieValue !== null) {
         const legal = validAssignments([dieValue], team).some((a) => a.targetRange === range);
@@ -185,7 +184,12 @@ function buildCenter(): HTMLElement {
     }
 
     case "assign": {
-      center.appendChild(el("p", "prompt", "Pick a die, then click a highlighted target on the computer's team."));
+      const defenderId = otherPlayer(s.attacker);
+      const noTargets = validAssignments(s.current!.attackDice, s.teams[defenderId]).length === 0;
+      const promptText = noTargets
+        ? "No die matches a surviving target. Spend a Bounce to adjust a die, or end your turn."
+        : "Pick a die, then click a highlighted target on the computer's team.";
+      center.appendChild(el("p", "prompt", promptText));
       const diceRow = el("div", "dice-row");
       s.current!.attackDice.forEach((value, index) => {
         diceRow.appendChild(buildDie(value, index === selectedDieIndex, () => {
@@ -200,6 +204,9 @@ function buildCenter(): HTMLElement {
         }
       });
       center.appendChild(diceRow);
+      if (noTargets) {
+        center.appendChild(actionButton("End Turn (No Target)", () => engine.passTurnNoTarget()));
+      }
       break;
     }
 

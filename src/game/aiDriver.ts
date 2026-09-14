@@ -45,6 +45,10 @@ export function stepAi(engine: GameEngine): boolean {
         void bestBefore;
       }
       const options = validAssignments(engine.state.current!.attackDice, opponent);
+      if (options.length === 0) {
+        engine.passTurnNoTarget();
+        return true;
+      }
       const pick = chooseAssignment(options);
       engine.assignDie(pick.dieIndex, pick.targetRange);
       return true;

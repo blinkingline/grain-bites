@@ -155,11 +155,6 @@ body {
   font-size: 0.85rem;
 }
 
-.chip-width {
-  font-size: 0.65rem;
-  opacity: 0.7;
-}
-
 .chip--dead {
   background: var(--dead);
   color: #777;
