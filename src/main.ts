@@ -9,6 +9,7 @@ const appEl = document.getElementById("app")!;
 let engine = new GameEngine(createInitialState());
 let selectedDieIndex: number | null = null;
 let aiTimerScheduled = false;
+let pendingResult: string[] | null = null;
 
 const PLAYER_LABEL: Record<PlayerId, string> = { human: "You", ai: "The Computer" };
 
@@ -25,7 +26,37 @@ function el<K extends keyof HTMLElementTagNameMap>(
 
 function render() {
   appEl.replaceChildren(buildHeader(), buildBoard(), buildLog());
+  if (pendingResult) {
+    appEl.appendChild(buildResultModal(pendingResult));
+  }
   scheduleAiIfNeeded();
+}
+
+/** Runs an engine action that resolves an attack, then surfaces whatever it logged as a modal the player must acknowledge. */
+function runAndShowResult(action: () => void) {
+  const before = engine.state.log.length;
+  action();
+  const added = engine.state.log.slice(before);
+  pendingResult = added.length > 0 ? added : null;
+  render();
+}
+
+function buildResultModal(lines: string[]): HTMLElement {
+  const overlay = el("div", "modal-overlay");
+  const modal = el("div", "modal");
+  const gameOver = engine.state.phase === "game-over";
+  modal.appendChild(el("h3", "modal-title", gameOver ? "Game Over" : "Result"));
+  for (const line of lines) {
+    modal.appendChild(el("p", "modal-line", line));
+  }
+  const btn = el("button", "btn btn--primary", "Continue");
+  btn.onclick = () => {
+    pendingResult = null;
+    render();
+  };
+  modal.appendChild(btn);
+  overlay.appendChild(modal);
+  return overlay;
 }
 
 function buildHeader(): HTMLElement {
@@ -136,8 +167,7 @@ function buildTeamPanel(owner: PlayerId, positionClass: string, rowPattern: numb
       } else if (member.alive && canEliminateHere) {
         chip.classList.add("chip--targetable");
         chip.onclick = () => {
-          engine.chooseElimination(range);
-          render();
+          runAndShowResult(() => engine.chooseElimination(range));
         };
       }
 
@@ -205,7 +235,7 @@ function buildCenter(): HTMLElement {
       });
       center.appendChild(diceRow);
       if (noTargets) {
-        center.appendChild(actionButton("End Turn (No Target)", () => engine.passTurnNoTarget()));
+        center.appendChild(resultButton("End Turn (No Target)", () => engine.passTurnNoTarget()));
       }
       break;
     }
@@ -233,7 +263,7 @@ function buildCenter(): HTMLElement {
         }
       });
       center.appendChild(diceRow);
-      center.appendChild(actionButton("Confirm", () => engine.resolve()));
+      center.appendChild(resultButton("Confirm", () => engine.resolve()));
       break;
     }
 
@@ -275,6 +305,13 @@ function actionButton(text: string, onClick: () => void): HTMLElement {
   return btn;
 }
 
+/** Like actionButton, but for an action that resolves an attack and should pop the result modal. */
+function resultButton(text: string, action: () => void): HTMLElement {
+  const btn = el("button", "btn btn--primary", text);
+  btn.onclick = () => runAndShowResult(action);
+  return btn;
+}
+
 function buildLog(): HTMLElement {
   const log = el("div", "log");
   for (const line of engine.state.log) {
@@ -288,11 +325,21 @@ function buildLog(): HTMLElement {
 
 function scheduleAiIfNeeded() {
   if (aiTimerScheduled) return;
+  if (pendingResult) return; // wait for the player to acknowledge before the computer moves again
   if (actorForPhase(engine.state) !== "ai") return;
   aiTimerScheduled = true;
   setTimeout(() => {
     aiTimerScheduled = false;
+    const beforePhase = engine.state.phase;
+    const beforeLogLength = engine.state.log.length;
     stepAi(engine);
+    const isResolution =
+      beforePhase === "defend-bounce" ||
+      beforePhase === "choose-elimination" ||
+      (beforePhase === "assign" && engine.state.phase === "choose-attack");
+    if (isResolution) {
+      pendingResult = engine.state.log.slice(beforeLogLength);
+    }
     render();
   }, 700);
 }

@@ -300,6 +300,43 @@ body {
   margin: 0.15rem 0;
 }
 
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.modal {
+  background: var(--panel-bg);
+  border: 3px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  max-width: 26rem;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.modal-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+
+.modal-line {
+  margin: 0.35rem 0;
+  font-weight: bold;
+}
+
+.modal .btn {
+  margin-top: 0.85rem;
+}
+
 @media (min-width: 640px) {
   .board {
     gap: 1rem;

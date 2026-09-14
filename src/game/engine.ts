@@ -84,7 +84,7 @@ export class GameEngine {
     }
     const defenderTeam = s.teams[defenderId];
     defenderTeam.bounces = Math.min(3, defenderTeam.bounces + 1);
-    log(s, `No die matches a surviving ${label(defenderId)} target. ${label(defenderId)} ${verb(defenderId, "gain")} a Bounce.`);
+    log(s, `No die matches a surviving target on ${possessiveLower(defenderId)} team. ${label(defenderId)} ${verb(defenderId, "gain")} a Bounce.`);
     this.finalizeTurn();
   }
 
@@ -99,7 +99,7 @@ export class GameEngine {
 
     s.current.assignedIndex = dieIndex;
     s.current.targetRange = targetRange;
-    log(s, `${label(s.attacker)} ${verb(s.attacker, "assign")} die ${dieValue} to ${label(defenderId)}'s ${targetRange}.`);
+    log(s, `${label(s.attacker)} ${verb(s.attacker, "assign")} die ${dieValue} to ${possessiveLower(defenderId)} ${targetRange}.`);
     s.phase = "defend";
   }
 
@@ -138,13 +138,13 @@ export class GameEngine {
     const success = defenseSucceeds(defense, rerollDice, targetRange);
 
     if (success && defense === "catch") {
-      log(s, `${label(defenderId)} ${verb(defenderId, "catch")} it! ${label(defenderId)} may eliminate one ${label(s.attacker)} team member.`);
+      log(s, `${label(defenderId)} ${verb(defenderId, "catch")} it! ${label(defenderId)} may eliminate one of ${possessiveLower(s.attacker)} team members.`);
       s.phase = "choose-elimination";
       return;
     }
 
     if (success && defense === "dodge") {
-      log(s, `${label(defenderId)}'s ${targetRange} dodges the attack and survives.`);
+      log(s, `${possessive(defenderId)} ${targetRange} dodges the attack and survives.`);
       this.finalizeTurn();
       return;
     }
@@ -152,7 +152,7 @@ export class GameEngine {
     // Defense failed either way: the originally targeted member is eliminated.
     const member = s.teams[defenderId].members.find((m) => m.range === targetRange)!;
     member.alive = false;
-    log(s, `${label(defenderId)}'s ${targetRange} is eliminated!`);
+    log(s, `${possessive(defenderId)} ${targetRange} is eliminated!`);
     this.finalizeTurn();
   }
 
@@ -163,7 +163,7 @@ export class GameEngine {
     if (!member || !member.alive) throw new Error("Invalid elimination target");
     member.alive = false;
     const eliminator = otherPlayer(s.attacker);
-    log(s, `${label(eliminator)} ${verb(eliminator, "eliminate")} ${label(s.attacker)}'s ${targetRange}!`);
+    log(s, `${label(eliminator)} ${verb(eliminator, "eliminate")} ${possessiveLower(s.attacker)} ${targetRange}!`);
     this.finalizeTurn();
   }
 
@@ -189,6 +189,14 @@ export class GameEngine {
 
 function label(p: PlayerId): string {
   return p === "human" ? "You" : "The computer";
+}
+
+function possessive(p: PlayerId): string {
+  return p === "human" ? "Your" : "The computer's";
+}
+
+function possessiveLower(p: PlayerId): string {
+  return p === "human" ? "your" : "the computer's";
 }
 
 /** "You" takes the base verb form; "The computer" (third person) needs it conjugated. */
