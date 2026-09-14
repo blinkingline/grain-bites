@@ -56,9 +56,9 @@ function buildHeader(): HTMLElement {
 
 function buildBoard(): HTMLElement {
   const board = el("div", "board");
-  board.appendChild(buildTeamPanel("ai", "panel--top"));
+  board.appendChild(buildTeamPanel("ai", "panel--top", [2, 2, 3]));
   board.appendChild(buildCourt());
-  board.appendChild(buildTeamPanel("human", "panel--bottom"));
+  board.appendChild(buildTeamPanel("human", "panel--bottom", [2, 3, 2]));
   return board;
 }
 
@@ -85,7 +85,7 @@ function courtMarkings(): SVGSVGElement {
   return svg;
 }
 
-function buildTeamPanel(owner: PlayerId, positionClass: string): HTMLElement {
+function buildTeamPanel(owner: PlayerId, positionClass: string, rowPattern: number[]): HTMLElement {
   const s = engine.state;
   const panel = el("section", `panel ${positionClass}`);
   if (s.attacker === owner && s.phase !== "game-over") panel.classList.add("panel--attacking");
@@ -93,7 +93,7 @@ function buildTeamPanel(owner: PlayerId, positionClass: string): HTMLElement {
   const heading = el("h2", "panel-title", owner === "human" ? "Your Team" : "The Computer's Team");
   panel.appendChild(heading);
 
-  const chips = el("div", "chips");
+  const body = el("div", "panel-body");
   const team = s.teams[owner];
 
   // Is this panel currently a legal click target for the human player?
@@ -108,46 +108,58 @@ function buildTeamPanel(owner: PlayerId, positionClass: string): HTMLElement {
 
   const dieValue = canAssignHere ? s.current!.attackDice[selectedDieIndex!] : null;
 
-  for (const range of RANGE_IDS) {
-    const member = team.members.find((m) => m.range === range)!;
-    const chip = el("button", "chip");
-    chip.classList.add(member.alive ? "chip--alive" : "chip--dead");
-    chip.disabled = !member.alive;
+  const membersInOrder = RANGE_IDS.map((range) => team.members.find((m) => m.range === range)!);
+  const grid = el("div", "chips-grid");
+  let memberIndex = 0;
+  for (const rowCount of rowPattern) {
+    const rowEl = el("div", "chip-row");
+    for (let i = 0; i < rowCount; i++) {
+      const member = membersInOrder[memberIndex++];
+      const range = member.range;
+      const chip = el("button", "chip");
+      chip.classList.add(member.alive ? "chip--alive" : "chip--dead");
+      chip.disabled = !member.alive;
 
-    const rangeLabel = el("span", "chip-range", range);
-    const widthLabel = el("span", "chip-width", `×${rangeWidth(range)}`);
-    chip.append(rangeLabel, widthLabel);
+      const rangeLabel = el("span", "chip-range", range);
+      const widthLabel = el("span", "chip-width", `×${rangeWidth(range)}`);
+      chip.append(rangeLabel, widthLabel);
 
-    if (member.alive && canAssignHere && dieValue !== null) {
-      const legal = validAssignments([dieValue], team).some((a) => a.targetRange === range);
-      if (legal) {
+      if (member.alive && canAssignHere && dieValue !== null) {
+        const legal = validAssignments([dieValue], team).some((a) => a.targetRange === range);
+        if (legal) {
+          chip.classList.add("chip--targetable");
+          chip.onclick = () => {
+            engine.assignDie(selectedDieIndex!, range);
+            selectedDieIndex = null;
+            render();
+          };
+        }
+      } else if (member.alive && canEliminateHere) {
         chip.classList.add("chip--targetable");
         chip.onclick = () => {
-          engine.assignDie(selectedDieIndex!, range);
-          selectedDieIndex = null;
+          engine.chooseElimination(range);
           render();
         };
       }
-    } else if (member.alive && canEliminateHere) {
-      chip.classList.add("chip--targetable");
-      chip.onclick = () => {
-        engine.chooseElimination(range);
-        render();
-      };
+
+      rowEl.appendChild(chip);
     }
-
-    chips.appendChild(chip);
+    grid.appendChild(rowEl);
   }
-  panel.appendChild(chips);
+  body.appendChild(grid);
 
-  const bounceRow = el("div", "bounces");
-  bounceRow.appendChild(el("span", "bounces-label", "Bounces:"));
+  const bounceCol = el("div", "bounces");
+  bounceCol.appendChild(el("span", "bounces-label", "Bounces"));
+  const dotsWrap = el("div", "bounce-dots");
   for (let i = 0; i < 3; i++) {
     const dot = el("span", "bounce-dot");
     if (i < team.bounces) dot.classList.add("bounce-dot--filled");
-    bounceRow.appendChild(dot);
+    dotsWrap.appendChild(dot);
   }
-  panel.appendChild(bounceRow);
+  bounceCol.appendChild(dotsWrap);
+  body.appendChild(bounceCol);
+
+  panel.appendChild(body);
 
   return panel;
 }
