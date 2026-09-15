@@ -27,12 +27,12 @@ body {
 }
 
 #app {
-  max-width: 720px;
+  max-width: 480px;
   margin: 0 auto;
-  padding: 1rem 1rem 2rem;
+  padding: 0.6rem 0.75rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .header {
@@ -41,15 +41,16 @@ body {
 }
 
 .title {
-  margin: 0.25rem 0;
-  font-size: 2.25rem;
+  margin: 0;
+  font-size: 1.5rem;
   letter-spacing: 0.05em;
   text-shadow: 2px 2px 0 var(--ink);
   color: var(--accent-2);
 }
 
 .status {
-  margin: 0.25rem 0 0.75rem;
+  margin: 0.1rem 0 0.35rem;
+  font-size: 0.85rem;
   font-weight: bold;
 }
 
@@ -68,7 +69,7 @@ body {
 
 .panel {
   background: var(--panel-bg);
-  padding: 0.75rem 1rem;
+  padding: 0.4rem 0.6rem;
   transition: box-shadow 0.2s ease;
   position: relative;
   z-index: 1;
@@ -94,12 +95,12 @@ body {
    echoing the postcard's back-of-card board art. */
 .court {
   position: relative;
-  min-height: 6.5rem;
+  min-height: 3.2rem;
   background: linear-gradient(180deg, #a15a1c, #8a4c17);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem;
+  padding: 0.35rem;
 }
 
 .court-lines {
@@ -111,8 +112,8 @@ body {
 }
 
 .panel-title {
-  margin: 0 0 0.5rem;
-  font-size: 1.1rem;
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
   color: var(--team-color);
 }
 
@@ -120,19 +121,19 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .chips-grid {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.25rem;
   flex: 1;
 }
 
 .chip-row {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.25rem;
   justify-content: center;
 }
 
@@ -141,10 +142,10 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 4.4rem;
-  height: 4.4rem;
+  width: 2.7rem;
+  height: 2.7rem;
   border-radius: 50%;
-  border: 3px solid var(--team-color, var(--panel-border));
+  border: 2px solid var(--team-color, var(--panel-border));
   background: radial-gradient(circle at 35% 30%, #fff, var(--team-tint, var(--accent-2)));
   font-weight: bold;
   cursor: default;
@@ -152,7 +153,7 @@ body {
 }
 
 .chip-range {
-  font-size: 0.85rem;
+  font-size: 0.62rem;
 }
 
 .chip--dead {
@@ -177,8 +178,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.8rem;
+  gap: 0.2rem;
+  font-size: 0.62rem;
   font-weight: bold;
   color: var(--team-color);
 }
@@ -186,12 +187,12 @@ body {
 .bounce-dots {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.18rem;
 }
 
 .bounce-dot {
-  width: 0.9rem;
-  height: 0.9rem;
+  width: 0.65rem;
+  height: 0.65rem;
   border-radius: 50%;
   border: 2px solid var(--team-color, var(--panel-border));
   background: transparent;
@@ -205,48 +206,50 @@ body {
   position: relative;
   z-index: 1;
   background: rgba(255, 248, 236, 0.95);
-  border: 3px solid var(--panel-border);
-  border-radius: 12px;
-  padding: 0.85rem 1rem;
+  border: 2px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.45rem 0.6rem;
   text-align: center;
-  min-height: 3.5rem;
+  min-height: 2.2rem;
   width: 100%;
-  max-width: 30rem;
+  max-width: 24rem;
 }
 
 .prompt {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
   font-weight: bold;
 }
 
 .thinking {
   margin: 0;
+  font-size: 0.8rem;
   font-style: italic;
   opacity: 0.8;
 }
 
 .action-row {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .dice-row {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.4rem;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.4rem;
 }
 
 .die {
-  width: 2.6rem;
-  height: 2.6rem;
-  font-size: 1.3rem;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.05rem;
   font-weight: bold;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 2px solid var(--panel-border);
   background: #fff;
   cursor: pointer;
@@ -270,7 +273,8 @@ body {
 .btn {
   border: 2px solid var(--panel-border);
   border-radius: 8px;
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
   font-weight: bold;
   cursor: pointer;
   background: #fff;
@@ -289,15 +293,15 @@ body {
 .log {
   background: rgba(255, 255, 255, 0.9);
   border: 2px solid var(--panel-border);
-  border-radius: 12px;
-  padding: 0.5rem 0.75rem;
-  max-height: 9rem;
+  border-radius: 10px;
+  padding: 0.35rem 0.6rem;
+  max-height: 4.5rem;
   overflow-y: auto;
-  font-size: 0.85rem;
+  font-size: 0.68rem;
 }
 
 .log-line {
-  margin: 0.15rem 0;
+  margin: 0.1rem 0;
 }
 
 .modal-overlay {
@@ -315,30 +319,25 @@ body {
   background: var(--panel-bg);
   border: 3px solid var(--panel-border);
   border-radius: 12px;
-  padding: 1.25rem 1.5rem;
-  max-width: 26rem;
+  padding: 1rem 1.25rem;
+  max-width: 22rem;
   width: 100%;
   text-align: center;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
 }
 
 .modal-title {
-  margin: 0 0 0.75rem;
-  font-size: 1.2rem;
+  margin: 0 0 0.6rem;
+  font-size: 1.05rem;
   color: var(--accent);
 }
 
 .modal-line {
-  margin: 0.35rem 0;
+  margin: 0.3rem 0;
+  font-size: 0.85rem;
   font-weight: bold;
 }
 
 .modal .btn {
-  margin-top: 0.85rem;
-}
-
-@media (min-width: 640px) {
-  .board {
-    gap: 1rem;
-  }
+  margin-top: 0.7rem;
 }
